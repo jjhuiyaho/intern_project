@@ -220,15 +220,17 @@ cat(sprintf("\n✅ 100%% 탐색 완료! 완벽합니다. [%s] 파일을 열어�
 내용을 채우는 기준은 **KOSIS 100대 지표 사이트의 지표 목록**
 
 ![image.png](image/1.png)
+![image.png](image/2.png)
+![image.png](image/3.png)
 
 1. 출처에 기입된 「조사명」을 KOSIS 공유서비스 > 개발가이드 > **통계설명 >&#x20;**&#xC791;성기관 검&#xC0C9;**&#x20;>&#x20;**&#xC5D0; 검색해서 `statId` 채우기\
    이 때 같이 결과에 나오는 기관 코드 번호를 `orgId`에 기입 **(출처에 나타나는 기관과 동일한 기관인지 확인하기!) - 여러개가 출력되는 경우 최신 자료로 통일**
 
-![image.png](/page/files/1872aa8f4dd642ed94a2c88f70c28ca0/image.png)
+![image.png](image/4.png)
 
 지표 상세 내용 보기로 들어가면 다양한 시각화 그래프가 나오는데 여기서 밑에 보이는 **출처 통계표** 클릭하기!
 
-![image.png](/page/files/1331348b9ca74e55b787701e443c1eb0/image.png)
+![image.png](image/5.png)
 
 그러면 시각화를 위해 활용되는 데이터 통계표가 나타나는데\
 2. 이 통계표의 제목을 KOSIS 공유서비스 > 개발가이드 > **통계자료**에 검색해서 `tblId` 채우&#xAE30;**&#x20;(여기서도 동일하게** **출처에 나타나는 기관과 동일한 기관인지 확인하기!) - 동일한 자료 여러개 나오면 최신 자료 선택하기**
@@ -271,7 +273,8 @@ cat(sprintf("\n✅ 100%% 탐색 완료! 완벽합니다. [%s] 파일을 열어�
 
 **결과물 예시**
 
-![image.png](/page/files/40dfd570e72b4ab9b23f637d37e05e5e/image.png)[API탐색결과_한재희.json](/page/files/283537e08d8c440d9aabc7f563621f05/API탐색결과_한재희.json)
+![image.png](image/6.png)
+[API탐색결과_한재희.json](/page/files/283537e08d8c440d9aabc7f563621f05/API탐색결과_한재희.json)
 
 **🟨 Step 2: 핵심 알맹이(`itmId`) 추출 및 XAI 온톨로지 설계**
 
