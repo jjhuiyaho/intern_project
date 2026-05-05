@@ -274,7 +274,8 @@ cat(sprintf("\n✅ 100%% 탐색 완료! 완벽합니다. [%s] 파일을 열어�
 **결과물 예시**
 
 ![image.png](image/6.png)
-[API탐색결과_한재희.json](/page/files/283537e08d8c440d9aabc7f563621f05/API탐색결과_한재희.json)
+
+[API탐색결과_한재희.json](image/API탐색결과_예시.json)
 
 **🟨 Step 2: 핵심 알맹이(`itmId`) 추출 및 XAI 온톨로지 설계**
 
