@@ -219,7 +219,7 @@ cat(sprintf("\n✅ 100%% 탐색 완료! 완벽합니다. [%s] 파일을 열어�
 
 내용을 채우는 기준은 **KOSIS 100대 지표 사이트의 지표 목록**
 
-![image.png](/page/files/4d563263be304054b527213c3aaf8713/image.png)![image.png](/page/files/5e710b9dc63e4e608a475579e33a22c9/image.png)![image.png](/page/files/322533cd66f544d5a0980fd841f90060/image.png)
+![image.png](image/1.png)
 
 1. 출처에 기입된 「조사명」을 KOSIS 공유서비스 > 개발가이드 > **통계설명 >&#x20;**&#xC791;성기관 검&#xC0C9;**&#x20;>&#x20;**&#xC5D0; 검색해서 `statId` 채우기\
    이 때 같이 결과에 나오는 기관 코드 번호를 `orgId`에 기입 **(출처에 나타나는 기관과 동일한 기관인지 확인하기!) - 여러개가 출력되는 경우 최신 자료로 통일**
