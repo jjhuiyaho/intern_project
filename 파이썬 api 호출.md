@@ -24,14 +24,48 @@ API_KEY = "여기에_본인의_API_키를_입력하세요"
 TEAM_MEMBER = "이름입력" # 함승은, 김민송, 백선아, 임다원, 한재희 형식으로 쓰면 좋을거 같아요
 
 # 2. 내가 맡은 지표들의 ID 목록
-# 본인이 할당받은 지표들을 아래 양식에 맞춰 리스트에 추가해 주세요.
-# - tblId나 orgId를 아직 못 찾았다면 빈칸("")으로 두면 알아서 스킵됩니다.
+# - number: 번호
+# - category: 지표 카테고리 (예: 경제, 사회, 환경 등)
+# - name: 지표명
+# - orgId: 기관코드
+# - statId: 통계조사ID | KOSIS 공유서비스 > 개발가이드 > 통계설명 > URL생성 > 출처의 「조사명」으로 검색
+# - tblId: 통계표ID | KOSIS 공유서비스 > 개발가이드 > 통계자료 > URL생성 > 지표명으로 검색
+# - 유형 1 (단일 표): tables 배열 안에 표 정보를 1개만 넣습니다.
+# - 유형 2 (다중 표): tables 배열 안에 여러 개의 표 정보를 넣습니다.
 MY_INDICATORS = [
-    # ⬇️ 작성 예시 (참고 후 지우고 본인 지표로 채우세요!)
-    # {"number": 번호, "category": "카테고리명", "name": "지표명", "orgId": "기관코드", "statId": "조사ID", "tblId": "통계표ID"},
+    # ------------------------------------------------
+    # [유형 1] 단일 표 지표 (기존 방식)
+    # ------------------------------------------------
+    {
+        "number": 1, 
+        "category": "경제일반", 
+        "name": "경기종합지수", 
+        "tables": [
+            {"sub_name": "기본", "orgId": "101", "statId": "1981001", "tblId": "DT_1C8015"}
+        ]
+    },
+    {
+        "number": 2, 
+        "category": "경제일반", 
+        "name": "사업체수", 
+        "tables": [
+            {"sub_name": "기본", "orgId": "101", "statId": "1995026", "tblId": "DT_1K52F01"}
+        ]
+    },
     
-    {"number": 1, "category": "사회", "name": "테스트지표1", "orgId": "101", "statId": "1234567", "tblId": "DT_TEST01"},
-    {"number": 2, "category": "환경", "name": "테스트지표2", "orgId": "101", "statId": "7654321", "tblId": ""} 
+    # ------------------------------------------------
+    # [유형 2] 다중 표 지표 (1개의 지표를 위해 표 여러 개 융합)
+    # ------------------------------------------------
+    {
+        "number": 99, 
+        "category": "사회", 
+        "name": "초중고 학생수 총합", 
+        "tables": [
+            {"sub_name": "초등학생", "orgId": "134", "statId": "11111", "tblId": "DT_ELEM_01"},
+            {"sub_name": "중학생", "orgId": "134", "statId": "22222", "tblId": "DT_MID_01"},
+            {"sub_name": "고등학생", "orgId": "134", "statId": "33333", "tblId": "DT_HIGH_01"}
+        ]
+    }
 ]
 
 # ==========================================
@@ -57,40 +91,62 @@ print(f"🚀 {TEAM_MEMBER}님의 지표 API 탐색을 시작합니다...\n")
 exploration_results = {}
 
 for ind in MY_INDICATORS:
-    # tblId나 orgId가 비어있으면 건너뛰기
-    if not ind['tblId'] or not ind['orgId']:
-        print(f"⚠️ [{ind['name']}] ID 정보가 부족하여 건너뜁니다.")
-        continue
-
-    print(f"[{ind['name']}] 데이터 수집 중...")
+    print(f"📌 [{ind['name']}] 데이터 수집 중...")
     
     ind_data = {}
     
-    # 1. 통계설명 API (전체 항목 ALL) - '공장' 정보 가져오기
-    url_expl = "https://kosis.kr/openapi/statisticsExplData.do"
-    params_expl = {
-        "method": "getList", "apiKey": API_KEY, "format": "json", "jsonVD": "Y",
-        "statId": ind['statId'], "metaItm": "ALL"
-    }
-    ind_data["1_통계설명(조사목적, 대상 등)"] = fetch_kosis_data(url_expl, params_expl)
-    
-    # 2. 메타자료 API (항목/분류 정보) - '제품' 정보 가져오기
-    url_meta = "https://kosis.kr/openapi/statisticsData.do"
-    params_meta_itm = {
-        "method": "getMeta", "apiKey": API_KEY, "format": "json", "jsonVD": "Y",
-        "orgId": ind['orgId'], "tblId": ind['tblId'], "type": "ITM"
-    }
-    ind_data["2_메타자료_항목및분류(ITM)"] = fetch_kosis_data(url_meta, params_meta_itm)
-    
-    # 3. 메타자료 API (단위 정보) - '제품' 단위 가져오기
-    params_meta_unit = {
-        "method": "getMeta", "apiKey": API_KEY, "format": "json", "jsonVD": "Y",
-        "orgId": ind['orgId'], "tblId": ind['tblId'], "type": "UNIT"
-    }
-    ind_data["3_메타자료_단위(UNIT)"] = fetch_kosis_data(url_meta, params_meta_unit)
+    # 지표 내에 설정된 표(tables)의 개수만큼 반복 실행합니다.
+    for table in ind.get('tables', []):
+        sub_name = table['sub_name']
+        
+        # tblId나 orgId가 비어있으면 건너뛰기
+        if not table.get('tblId') or not table.get('orgId') or not table.get('statId'):
+            print(f"  ⚠️ ↪ [{sub_name}] ID 정보가 부족하여 건너뜁니다.")
+            continue
+            
+        print(f"  ↪ 세부 항목 ({sub_name}) 수집 중...")
+        
+        table_result = {}
+        
+        # 1. 통계설명 API (전체 항목 ALL) - '공장' 정보 가져오기
+        # =====================================================================
+        # 🎯 사용된 API 1: [4. 통계설명 API] (엔드포인트: statisticsExplData.do)
+        # 역할: 해당 통계가 무슨 목적으로, 어떻게 조사되었는지 '배경지식'을 가져옵니다.
+        # 활용: 우리가 XAI_답변지침(AI의 설명 매뉴얼)을 작성할 때 참고서로 읽습니다.
+        # =====================================================================
+        url_expl = "https://kosis.kr/openapi/statisticsExplData.do"
+        params_expl = {
+            "method": "getList", "apiKey": API_KEY, "format": "json", "jsonVD": "Y",
+            "statId": table['statId'], "metaItm": "ALL"
+        }
+        table_result["1_통계설명(조사목적, 대상 등)"] = fetch_kosis_data(url_expl, params_expl)
+        
+        # 2. 메타자료 API (항목/분류 정보) - '제품' 정보 가져오기
+        # =====================================================================
+        # 🎯 사용된 파트 2: [5. 통계표설명 API] (엔드포인트: statisticsData.do, method: getMeta)
+        # 역할: 표 안에 어떤 항목(itmId)과 단위가 들어있는지 '메뉴판'을 가져옵니다.
+        # 활용: 이 결과를 엑셀/JSON으로 보고, 우리가 AI에게 지시할 타겟 좌표(itmId)를 골라냅니다.
+        # =====================================================================
+        url_meta = "https://kosis.kr/openapi/statisticsData.do"
+        params_meta_itm = {
+            "method": "getMeta", "apiKey": API_KEY, "format": "json", "jsonVD": "Y",
+            "orgId": table['orgId'], "tblId": table['tblId'], "type": "ITM"
+        }
+        table_result["2_메타자료_항목및분류(ITM)"] = fetch_kosis_data(url_meta, params_meta_itm)
+        
+        # 3. 메타자료 API (단위 정보) - '제품' 단위 가져오기
+        params_meta_unit = {
+            "method": "getMeta", "apiKey": API_KEY, "format": "json", "jsonVD": "Y",
+            "orgId": table['orgId'], "tblId": table['tblId'], "type": "UNIT"
+        }
+        table_result["3_메타자료_단위(UNIT)"] = fetch_kosis_data(url_meta, params_meta_unit)
 
-    # 지표별로 결과 저장
-    exploration_results[ind['name']] = ind_data
+        # 1개의 표에 대한 3가지 API 수집 결과를 '서브 이름(예: 초등학생)'을 Key로 하여 저장
+        ind_data[sub_name] = table_result
+
+    # 1개의 지표에 대한 모든 수집이 끝나면 최종 결과 객체에 병합
+    if ind_data:
+        exploration_results[ind['name']] = ind_data
 
 # ==========================================
 # 결과 파일 저장
@@ -105,14 +161,11 @@ print(f"\n✅ 탐색 완료! [{filename}] 파일을 열어서 어떤 데이터�
 동일 코드 제미나이 써서 R 버전으로 바꿔봤습니다
 
 ```R
-# ==========================================
-# 0. 필요 패키지 로드 
-# (설치되어 있지 않다면 아래 주석을 해제하고 먼저 실행하세요)
-# ==========================================
-# install.packages(c("httr", "jsonlite", "stringr"))
+# 필요한 패키지 설치 (설치되어 있지 않은 경우 아래 주석 해제 후 실행)
+# install.packages(c("httr", "jsonlite"))
+
 library(httr)
 library(jsonlite)
-library(stringr)
 
 # ==========================================
 # [설정] 팀원 각자 자신의 정보로 수정해서 사용하세요!
@@ -121,37 +174,67 @@ library(stringr)
 API_KEY <- "여기에_본인의_API_키를_입력하세요" 
 
 # 1. 내 이름 입력 (결과 파일명에 사용됨)
-TEAM_MEMBER <- "이름입력" # 함승은, 김민송, 백선아, 임다원, 한재희 형식으로 쓰면 좋을거 같아요
+TEAM_MEMBER <- "이름입력" # 함승은, 김민송, 백선아, 임다원, 한재희 형식
 
-# 2. 내가 맡은 지표들의 ID 목록 (R의 list 구조 활용)
-# 🚨 [주의] 할당받은 모든 지표의 빈칸(ID)을 끝까지 추적해서 100% 채워 넣어야만 코드가 실행됩니다!
+# 2. 내가 맡은 지표들의 ID 목록
 MY_INDICATORS <- list(
-  # ⬇️ 작성 예시 (참고 후 지우고 본인 지표로 모두 채우세요!)
-  list(number = 1, category = "사회", name = "테스트지표1", orgId = "101", statId = "1234567", tblId = "DT_TEST01"),
-  list(number = 2, category = "환경", name = "테스트지표2", orgId = "101", statId = "7654321", tblId = "DT_TEST02")
+  # ------------------------------------------------
+  # [유형 1] 단일 표 지표 (기존 방식)
+  # ------------------------------------------------
+  list(
+    number = 1, 
+    category = "경제일반", 
+    name = "경기종합지수", 
+    tables = list(
+      list(sub_name = "기본", orgId = "101", statId = "1981001", tblId = "DT_1C8015")
+    )
+  ),
+  list(
+    number = 2, 
+    category = "경제일반", 
+    name = "사업체수", 
+    tables = list(
+      list(sub_name = "기본", orgId = "101", statId = "1995026", tblId = "DT_1K52F01")
+    )
+  ),
+  
+  # ------------------------------------------------
+  # [유형 2] 다중 표 지표 (1개의 지표를 위해 표 여러 개 융합)
+  # ------------------------------------------------
+  list(
+    number = 99, 
+    category = "사회", 
+    name = "초중고 학생수 총합", 
+    tables = list(
+      list(sub_name = "초등학생", orgId = "134", statId = "11111", tblId = "DT_ELEM_01"),
+      list(sub_name = "중학생", orgId = "134", statId = "22222", tblId = "DT_MID_01"),
+      list(sub_name = "고등학생", orgId = "134", statId = "33333", tblId = "DT_HIGH_01")
+    )
+  )
 )
 
 # ==========================================
 # 함수 정의 (API 찌르기 및 KOSIS 버그 수정)
 # ==========================================
 fetch_kosis_data <- function(url, params) {
-  res <- GET(url, query = params)
-  res_text <- content(res, as = "text", encoding = "UTF-8")
+  response <- GET(url, query = params)
+  response_text <- content(response, "text", encoding = "UTF-8")
   
-  # R의 tryCatch를 이용한 파싱 및 정규식 에러 핸들링
-  parsed_data <- tryCatch({
-    fromJSON(res_text)
+  # JSON 파싱 시도 (tryCatch를 이용한 예외 처리)
+  result <- tryCatch({
+    fromJSON(response_text, simplifyVector = FALSE) # Python의 dict/list 구조를 유지하기 위해 FALSE 옵션 사용
   }, error = function(e) {
-    # KOSIS 특유의 따옴표 누락 버그 보정
-    fixed_text <- str_replace_all(res_text, "([a-zA-Z0-9_]+):", "\"\\1\":")
+    # KOSIS 특유의 따옴표 누락 버그 보정 (정규표현식 사용)
+    fixed_text <- gsub("([a-zA-Z0-9_]+):", '"\\1":', response_text)
+    
     tryCatch({
-      fromJSON(fixed_text)
+      fromJSON(fixed_text, simplifyVector = FALSE)
     }, error = function(e2) {
       return("데이터가 없거나 파싱 불가")
     })
   })
   
-  return(parsed_data)
+  return(result)
 }
 
 # ==========================================
@@ -159,60 +242,73 @@ fetch_kosis_data <- function(url, params) {
 # ==========================================
 cat(sprintf("🚀 %s님의 지표 API 탐색을 시작합니다...\n\n", TEAM_MEMBER))
 
+# R에서는 리스트(list)를 파이썬의 딕셔너리처럼 사용합니다.
 exploration_results <- list()
 
 for (ind in MY_INDICATORS) {
-  
-  # 🚨 필수 값 누락 체크 (무조건 다 채워야 돌아가도록 강제 종료)
-  if (is.null(ind$tblId) || str_trim(ind$tblId) == "" ||
-      is.null(ind$orgId) || str_trim(ind$orgId) == "" ||
-      is.null(ind$statId) || str_trim(ind$statId) == "") {
-    
-    cat(sprintf("❌ [작업 중단] '%s' 지표의 ID 값이 비어있습니다!\n", ind$name))
-    cat("💡 타협은 없습니다. KOSIS 포털을 샅샅이 뒤져서 모든 빈칸을 100% 채운 뒤 다시 실행해주세요.\n")
-    stop("스크립트 실행을 중단합니다.")
-  }
-  
-  cat(sprintf("[%s] 데이터 수집 중...\n", ind$name))
+  cat(sprintf("📌 [%s] 데이터 수집 중...\n", ind$name))
   
   ind_data <- list()
   
-  # 1. 통계설명 API (전체 항목 ALL) - '공장' 정보 가져오기
-  url_expl <- "https://kosis.kr/openapi/statisticsExplData.do"
-  params_expl <- list(
-    method = "getList", apiKey = API_KEY, format = "json", jsonVD = "Y",
-    statId = ind$statId, metaItm = "ALL"
-  )
-  ind_data[["1_통계설명(조사목적, 대상 등)"]] <- fetch_kosis_data(url_expl, params_expl)
+  # 지표 내에 설정된 표(tables)의 개수만큼 반복 실행합니다.
+  if (!is.null(ind$tables)) {
+    for (table in ind$tables) {
+      sub_name <- table$sub_name
+      
+      # tblId나 orgId가 비어있으면 건너뛰기
+      if (is.null(table$tblId) || is.null(table$orgId) || is.null(table$statId)) {
+        cat(sprintf("  ⚠️ ↪ [%s] ID 정보가 부족하여 건너뜁니다.\n", sub_name))
+        next
+      }
+      
+      cat(sprintf("  ↪ 세부 항목 (%s) 수집 중...\n", sub_name))
+      
+      table_result <- list()
+      
+      # 1. 통계설명 API (전체 항목 ALL)
+      url_expl <- "https://kosis.kr/openapi/statisticsExplData.do"
+      params_expl <- list(
+        method = "getList", apiKey = API_KEY, format = "json", jsonVD = "Y",
+        statId = table$statId, metaItm = "ALL"
+      )
+      table_result[["1_통계설명(조사목적, 대상 등)"]] <- fetch_kosis_data(url_expl, params_expl)
+      
+      # 2. 메타자료 API (항목/분류 정보)
+      url_meta <- "https://kosis.kr/openapi/statisticsData.do"
+      params_meta_itm <- list(
+        method = "getMeta", apiKey = API_KEY, format = "json", jsonVD = "Y",
+        orgId = table$orgId, tblId = table$tblId, type = "ITM"
+      )
+      table_result[["2_메타자료_항목및분류(ITM)"]] <- fetch_kosis_data(url_meta, params_meta_itm)
+      
+      # 3. 메타자료 API (단위 정보)
+      params_meta_unit <- list(
+        method = "getMeta", apiKey = API_KEY, format = "json", jsonVD = "Y",
+        orgId = table$orgId, tblId = table$tblId, type = "UNIT"
+      )
+      table_result[["3_메타자료_단위(UNIT)"]] <- fetch_kosis_data(url_meta, params_meta_unit)
+      
+      # 1개의 표에 대한 3가지 API 수집 결과를 '서브 이름'을 Key로 하여 저장
+      ind_data[[sub_name]] <- table_result
+    }
+  }
   
-  # 2. 메타자료 API (항목/분류 정보) - '제품' 정보 가져오기
-  url_meta <- "https://kosis.kr/openapi/statisticsData.do"
-  params_meta_itm <- list(
-    method = "getMeta", apiKey = API_KEY, format = "json", jsonVD = "Y",
-    orgId = ind$orgId, tblId = ind$tblId, type = "ITM"
-  )
-  ind_data[["2_메타자료_항목및분류(ITM)"]] <- fetch_kosis_data(url_meta, params_meta_itm)
-  
-  # 3. 메타자료 API (단위 정보) - '제품' 단위 가져오기
-  params_meta_unit <- list(
-    method = "getMeta", apiKey = API_KEY, format = "json", jsonVD = "Y",
-    orgId = ind$orgId, tblId = ind$tblId, type = "UNIT"
-  )
-  ind_data[["3_메타자료_단위(UNIT)"]] <- fetch_kosis_data(url_meta, params_meta_unit)
-  
-  # 지표별로 결과 저장
-  exploration_results[[ind$name]] <- ind_data
+  # 1개의 지표에 대한 모든 수집이 끝나면 최종 결과 객체에 병합
+  if (length(ind_data) > 0) {
+    exploration_results[[ind$name]] <- ind_data
+  }
 }
 
 # ==========================================
 # 결과 파일 저장
 # ==========================================
-filename <- sprintf("API탐색결과_%s.json", TEAM_MEMBER)
+filename <- sprintf("API탐색결과_%s_.json", TEAM_MEMBER)
 
-# R에서 JSON 저장 시 Python의 json.dump와 동일한 형태(auto_unbox=TRUE)로 출력되게 맞춤
-write_json(exploration_results, path = filename, pretty = TRUE, auto_unbox = TRUE)
+# JSON 변환 및 UTF-8 인코딩으로 파일 저장 (한글 깨짐 방지)
+json_output <- toJSON(exploration_results, pretty = TRUE, auto_unbox = TRUE)
+writeLines(as.character(json_output), con = filename, useBytes = TRUE)
 
-cat(sprintf("\n✅ 100%% 탐색 완료! 완벽합니다. [%s] 파일을 열어서 진짜 항목 코드(itmId)를 골라내 봅시다.\n", filename))
+cat(sprintf("\n✅ 탐색 완료! [%s] 파일을 열어서 어떤 데이터가 들어있는지 확인해보세요.\n", filename))
 ```
 
 * **작업 내용:** `MY_INDICATORS` 리스트에 `orgId`, `statId`, `tblId`를 채워 넣고 파이썬 스크립트를 실행합니다.
