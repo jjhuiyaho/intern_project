@@ -6,10 +6,10 @@
 
 1-1. 코봇은 실헙적 통계를 찾을 수 없음
 
-![image.png](image/KOBOTERROR1-1.png)
+![](image/KOBOTERROR1-1.png)
 
 
 
 2. '흥미를 가질 법한'과 같이 주관적 의미 해석 부족
 
-![image.png](image/KOBOTERROR2.png)
+![](image/KOBOTERROR2.png)
