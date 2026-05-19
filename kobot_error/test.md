@@ -1,6 +1,6 @@
 1. 국가데이터처 실험적 통계
 
-![](image/KOBOTERROR1.png)
+![](../image/KOBOTERROR1.png)
 
 
 
