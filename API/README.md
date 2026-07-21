@@ -54,9 +54,9 @@ intern_project_API
 
 ### [주요 파일 바로가기]
 
-* **API 수집 소스코드 및 분석 가이드:** [STEP1_파이썬_api_호출.md](https://www.google.com/search?q=./STEP1_%ED%8C%8C%EC%9D%B4%EC%8D%AC_api_%ED%98%B8%EC%B6%9C.md)
-* **AI 레드티밍 실험 설계 프레임워크:** [STEP2_챗봇_실험_가이드라인.md](https://www.google.com/search?q=./STEP2_%EC%B1%97%EB%B4%87_%EC%8B%A4%ED%97%98_%EA%B0%80%EC%9D%B4%EB%93%9C%EB%9D%BC%EC%9D%B8.md)
-* **KOSIS API 수집 데이터 및 가드레일 JSON 저장소:** [api_호출_결과물/ 폴더 바로가기](https://www.google.com/search?q=./api_%ED%98%B8%EC%B6%9C_%EA%B2%B0%EA%B3%BC%EB%AC%BC/)
+* **API 수집 소스코드 및 분석 가이드:** [STEP1_파이썬_api_호출.md](https://github.com/jjhuiyaho/intern_project/blob/main/API/STEP1_%ED%8C%8C%EC%9D%B4%EC%8D%AC_api_%ED%98%B8%EC%B6%9C.md)
+* **AI 레드티밍 실험 설계 프레임워크:** [STEP2_챗봇_실험_가이드라인.md](https://github.com/jjhuiyaho/intern_project/blob/main/API//STEP2_%EC%B1%97%EB%B4%87_%EC%8B%A4%ED%97%98_%EA%B0%80%EC%9D%B4%EB%93%9C%EB%9D%BC%EC%9D%B8.md)
+* **KOSIS API 수집 데이터 및 가드레일 JSON 저장소:** [api_호출_결과물/ 폴더 바로가기](https://github.com/jjhuiyaho/intern_project/blob/main/API/api_%ED%98%B8%EC%B6%9C_%EA%B2%B0%EA%B3%BC%EB%AC%BC/)
 
 ---
 
