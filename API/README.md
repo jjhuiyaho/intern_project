@@ -35,6 +35,7 @@ KOSIS 공유서비스에서 제공하는 핵심 지표를 대상으로 비정형
 ## 3. 레포지토리 디렉토리 구조 (Directory Structure)
 
 ```text
+intern_project_API
 ├── STEP1_파이썬_api_호출.md        # statisticsData / statisticsExplData API 파이썬 수집 가이드
 ├── STEP2_챗봇_실험_가이드라인.md     # 3단계 변인 통제 AI 레드티밍 실험 설계 프레임워크
 ├── api_호출_결과물/                  # KOSIS API 추출 원천 데이터 및 가공 데이터 자산
